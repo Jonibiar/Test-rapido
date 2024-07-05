@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Divertido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff4500;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            background-color: #ff4500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            margin-top: 10px;
+        }
+        .question {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .timer {
+            margin-top: 20px;
+            font-size: 18px;
+            color: red;
+        }
+        .response {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¡Test Divertido!</h1>
+        <div id="user-form">
+            <p>Introduce tu nombre de usuario de Instagram para comenzar:</p>
+            <input type="text" id="username" placeholder="Usuario de Instagram">
+            <button onclick="startTest()">Iniciar Test</button>
+        </div>
+        <div id="test-section" class="hidden">
+            <div id="questions"></div>
+            <div class="timer" id="timer">Tiempo restante: 2:00</div>
+            <button onclick="submitTest()">Enviar Respuestas</button>
+        </div>
+        <div id="result-section" class="hidden">
+            <h2>¡Test Completado!</h2>
+            <p>Aquí están tus respuestas:</p>
+            <div id="results"></div>
+            <p class="response" id="username-display"></p>
+            <p class="response" id="time-display"></p>
+            <p>Haz un pantallazo y compártelo en Instagram.</p>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "¿Si los animales pudieran hablar, cuál sería el más grosero?",
+            "¿Qué harías si te despiertas y descubres que eres invisible?",
+            "¿Cuál es el nombre más ridículo que podrías dar a tu mascota?",
+            "¿Qué superpoder elegirías si solo lo pudieras usar para cosas tontas?",
+            "¿Si fueras un helado, de qué sabor serías y por qué?"
+        ];
+        let answers = [];
+        let timer;
+        let timeLeft = 120; // 2 minutos en segundos
+        let userCompleted = false;
+        let username = '';
+        let startTime;
+
+        function startTest() {
+            username = document.getElementById('username').value;
+            if (!username) {
+                alert("Por favor, introduce tu nombre de usuario de Instagram.");
+                return;
+            }
+            document.getElementById('user-form').classList.add('hidden');
+            document.getElementById('test-section').classList.remove('hidden');
+            startTime = Date.now();
+            displayQuestions();
+            startTimer();
+        }
+
+        function displayQuestions() {
+            const questionsContainer = document.getElementById('questions');
+            questionsContainer.innerHTML = '';
+            questions.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question';
+                questionElement.innerHTML = `
+                    <p>${question}</p>
+                    <input type="text" id="answer-${index}" placeholder="Escribe tu respuesta aquí">
+                `;
+                questionsContainer.appendChild(questionElement);
+            });
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    submitTest();
+                    return;
+                }
+                timeLeft--;
+                document.getElementById('timer').innerText = `Tiempo restante: ${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function submitTest() {
+            if (userCompleted) return;
+            userCompleted = true;
+            clearInterval(timer);
+            const endTime = Date.now();
+            const timeTaken = Math.floor((endTime - startTime) / 1000);
+            const minutes = Math.floor(timeTaken / 60);
+            const seconds = timeTaken % 60;
+            const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            questions.forEach((question, index) => {
+                const answer = document.getElementById(`answer-${index}`).value;
+                answers.push(answer);
+            });
+            document.getElementById('test-section').classList.add('hidden');
+            displayResults(formattedTime);
+        }
+
+        function displayResults(timeTaken) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            answers.forEach((answer, index) => {
+                const resultElement = document.createElement('div');
+                resultElement.innerHTML = `<p>${questions[index]}</p><p>Respuesta: ${answer}</p>`;
+                resultsContainer.appendChild(resultElement);
+            });
+            document.getElementById('username-display').innerText = `Usuario de Instagram: @${username}`;
+            document.getElementById('time-display').innerText = `Tiempo tomado: ${timeTaken}`;
+            document.getElementById('result-section').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
